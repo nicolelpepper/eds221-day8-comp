@@ -1,0 +1,158 @@
+---
+title: "EDS 221 Day 8 - Morning Session"
+author: "Nicole Pepper"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+# General use packages:
+library(tidyverse)
+library(here)
+library(janitor)
+
+# Specifically for plots:
+library(patchwork)
+library(ggrepel)
+library(gghighlight)
+library(paletteer)
+library(ggExtra)
+library(ggbeeswarm)
+
+# And for another dataset we'll explore:
+library(gapminder)
+
+# Spatial
+library(sf)
+```
+
+
+```{r}
+# Load in data
+lizards <- read_csv(here("data_tidy", "lizards.csv"))
+```
+
+```{r}
+# ggplot essential pieces, 3 ways (that do the same thing):
+
+# Like this: 
+
+#sets data and aesthetics globally
+ggplot(data = lizards, aes(x = total_length, y = weight)) + #what data
+  geom_point() # what geometry
+
+#this dets data globally and then aesthetics in geometry layer
+ggplot(data = lizards) +
+    geom_point(aes(x = total_length, y = weight))
+
+#this lets you set the data and aesthetics by layer
+ggplot() +
+  geom_point(data = lizards, aes(x = total_length, y = weight))
+
+```
+
+```{r}
+ggplot(data = lizards, aes(x = total_length)) +
+  geom_histogram()
+
+```
+
+```{r}
+ggplot(data = lizards, aes(y=common_name, x = weight))+
+  geom_jitter()
+```
+
+```{r}
+ggplot(data = lizards, aes(x = weight)) +
+  geom_histogram(color = "orange", 
+                 fill = "purple", 
+                 size = 2, 
+                 linetype = "dotted")
+```
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(color = "cyan4", 
+             fill = "yellow",
+             shape = 22, 
+             size = 3, 
+             alpha = 0.4)
+```
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = common_name,
+                 size = total_length),
+             alpha = 0.5) +
+  scale_color_discrete(type = c("red","orange","yellow","green","blue","purple", "pink"))
+
+```
+
+
+```{r}
+# themes 
+
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = common_name), alpha = 0.3) + 
+  theme_light() + 
+  geom_point()+
+  labs(x="Total Length (mm)", y="Weight(grams)", title = "Title")
+
+```
+
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point() +
+  facet_wrap(~common_name, ncol = 3, scales = "free") + 
+  labs(x = "Total length(mm)", y = "Weight (grams)")
+
+```
+
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight))+
+  geom_point()+
+  facet_grid(sex ~ tail)
+```
+
+```{r}
+# creates count of lizards to use as value for listing
+lizard_counts <- lizards %>% 
+  count(common_name)
+
+# updates the structure of the data by values most to least
+ggplot(data = lizard_counts, aes(y = fct_reorder(common_name, n), x = n)) +
+  geom_col()
+
+
+```
+
+
+```{r}
+ggplot(data=lizards, aes(x = total_length, y=weight)) + 
+  geom_point(aes(color = common_name, shape = common_name), size = 2)
+```
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = common_name), 
+             fill = "black",
+             size = 2) +
+  theme_minimal() +
+  labs(x = "Total length (mm)",
+       y = "Weight (g)",
+       color = "Lizard species") +
+  facet_wrap(~common_name, scales = "free") 
+```
+
+
+```{r}
+ggplot(data = lizards, aes(y = fct_infreq(common_name))) +
+  geom_bar(aes(fill=site)) + 
+  theme_minimal() + 
+  labs(x = "Lizards Counts", y = "Species (common name)") + 
+  facet_grid(sex ~ tail)
+```
+
