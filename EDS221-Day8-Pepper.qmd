@@ -156,3 +156,161 @@ ggplot(data = lizards, aes(y = fct_infreq(common_name))) +
   facet_grid(sex ~ tail)
 ```
 
+
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point() +
+  scale_x_continuous(breaks = c(0, 250, 500), 
+                     limits = c(0, 500)) +
+  scale_y_continuous(breaks = seq(from = 0, to = 70, by = 10), 
+                     limits = c(0, 70)) +
+  theme_light()
+```
+
+
+```{r}
+lizard_counts <- lizards %>% 
+  mutate(date = lubridate::mdy(date)) %>% 
+  count(date)
+
+ggplot(data = lizard_counts, aes(x = date, y = n)) +
+  geom_line() +
+  scale_x_date(breaks = scales::breaks_pretty(), # See date_breaks for next year!
+               labels = scales::label_date("'%y")) + # See date_labels for next year!
+  scale_y_log10(labels = scales::label_scientific())
+```
+
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = weight)) +
+  scale_color_gradient(low = "red", high = "navy")
+
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = weight)) +
+  scale_color_steps(low = "red", high = "navy")
+
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = total_length)) +
+  scale_color_steps2(low = "green",
+                     mid = "black",
+                     high = "red",
+                     midpoint = 150,
+                     breaks = c(50, 75, 150, 180, 220, 280))
+
+
+ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = weight)) +
+  scale_color_gradientn(colors = c("yellow", "green","blue"))
+```
+
+
+
+```{r}
+p <- ggplot(data = lizards, aes(x = total_length, y = weight)) +
+  geom_point(aes(color = weight)) +
+  scale_color_stepsn(colors = c("orange","red","purple"),
+                     breaks = seq(from = 10, to = 60, by = 10))
+
+p + 
+  theme(panel.grid = element_blank()) 
+
+# Now let's just go bananas with some theme stuff: 
+
+p + 
+  theme(panel.background = element_rect(color = "purple", size = 3, fill = "yellow"),
+        panel.grid.major.y = element_line(color = "pink"),
+        panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(color = "red"),
+        axis.text.y = element_text(color = "lavender"),
+        axis.title.x = element_text(color = "red"),
+        axis.title.y = element_text(color = "gray70"),
+        text = element_text(size = 12, family="serif"),
+        plot.background = element_rect(fill = "pink"))
+
+```
+
+
+```{r}
+p +
+  geom_hline(yintercept = 40, mean(lizards$weight), color = "blue", linetype = "dashed") + 
+  geom_vline(xintercept = 100, color = "red") + 
+  annotate("text", x = 100, y = 50, label = "COOL!", color = "purple") +
+  annotate("text", x = 350, y = mean(lizards$weight) + 2, label = "Mean Weight")
+```
+
+```{r}
+mono <- read_csv(here("data_tidy", "mono.csv"))
+
+ggplot(data = mono, aes(x = year, y = lake_level)) +
+  geom_rect(aes(xmin = 1941, # Add a rectangle to your data frame
+                xmax = 1983, 
+                ymin = 6350, 
+                ymax = 6440), 
+            fill = "grey",
+            alpha = 0.5) + # Fill rectangle
+  geom_line() + # Make sure to put geom under the rec because you want it to show
+  labs(x = "\nYear",
+       y = "Lake surface level\n(feet above sea level)\n",
+       title = "Mono Lake levels (1850 - 2017)\n",   # Title
+       caption = "Data: Mono Basin Clearinghouse") + # Caption
+  scale_x_continuous(limits = c(1850, 2020),  # Scale x axis continuously from 1850 to 2020
+                     expand = c(0,0), # this tells how much of a border/expansion to have along edge of data, (0,0) sets none  
+                     breaks = seq(1850, 2010, by = 20)) +
+  scale_y_continuous(limits = c(6350, 6440),  # scale y axis continuously from 6350 to 6440
+                     breaks = c(6370, 6400, 6430), # create breaks
+                     expand = c(0,0),  
+                     labels = scales::label_comma()) +
+  annotate("text", x = 1962, y = 6425, 
+           label = "unrestricted diversions\n(1941 - 1983)",
+           size = 3) +
+  theme_light() + # update theme from default
+  theme(plot.title.position = "plot",
+        axis.text.y = element_text(face = "italic")) +
+  geom_hline(yintercept = 6360, linetype = "dashed") +  # Adds a horizontal line
+  annotate("text", 
+           x = 1910, 
+           y = 6367, 
+           label = "Decreased shrimp abundance expected\n(6,360 feet above sea level)", #label
+           size = 3) 
+    
+
+```
+
+
+```{r}
+mono <- read_csv(here("data_tidy", "mono.csv"))
+
+ggplot(data = mono, aes(x = year, y = lake_level)) +
+  
+    annotate(geom = "rect", xmin = 1941, xmax = 1983, ymin = 6350, ymax = 6440,
+           fill = "palegreen", colour = "grey", alpha = 0.5) +
+
+  geom_line() + # Make sure to put geom under the rec because you want it to show
+  labs(x = "\nYear",
+       y = "Lake surface level\n(feet above sea level)\n",
+       title = "Mono Lake levels (1850 - 2017)\n",   # Title
+       caption = "Data: Mono Basin Clearinghouse") + # Caption
+  scale_x_continuous(limits = c(1850, 2020),  # Scale x axis continuously from 1850 to 2020
+                     expand = c(0,0), # this tells how much of a border/expansion to have along edge of data, (0,0) sets none  
+                     breaks = seq(1850, 2010, by = 20)) +
+  scale_y_continuous(limits = c(6350, 6440),  # scale y axis continuously from 6350 to 6440
+                     breaks = c(6370, 6400, 6430), # create breaks
+                     expand = c(0,0),  
+                     labels = scales::label_comma()) +
+  annotate("text", x = 1962, y = 6425, 
+           label = "unrestricted diversions\n(1941 - 1983)",
+           size = 3) +
+  theme_light() + # update theme from default
+  theme(plot.title.position = "plot",
+        axis.text.y = element_text(face = "italic")) +
+  geom_hline(yintercept = 6360, linetype = "dashed") +  # Adds a horizontal line
+  annotate("text", 
+           x = 1910, 
+           y = 6367, 
+           label = "Decreased shrimp abundance expected\n(6,360 feet above sea level)", #label
+           size = 3) 
+    
+```
+
